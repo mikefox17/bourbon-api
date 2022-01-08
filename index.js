@@ -11,18 +11,19 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
+    console.table(`Server running on ${PORT}`);
 });
 
 const url = 'https://whiskeyraiders.com/archive/';
-const classHtml = '.o-archive__table-title-link';
+
+//this grabs all of the href links from the table
 
 axios.get(url).then(response => {
     const $ = cheerio.load(response.data);
-    $(classHtml).each((i, el) => {
-        let titles = [];
-        console.log(el);
-        titles = $(el).text();
-        console.log(titles);
+    const allLinks = [];
+    $('#table > tbody > tr > td > a').each((i, el) => {
+        const link = $(el).attr('href');
+        allLinks.push(link);
     });
+    console.log(allLinks);
 });
