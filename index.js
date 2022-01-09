@@ -14,17 +14,36 @@ server.listen(PORT, () => {
 });
 
 const url = 'https://whiskeyraiders.com/archive/';
-//this cant be populated outside of the get
-const allLinks = [];
-//this grabs all of the href links from the table
-axios.get(url).then(response => {
-    const $ = cheerio.load(response.data);
-    $('#table > tbody > tr > td > a').each((i, el) => {
-        const link = $(el).attr('href');
-        allLinks.push(link);
-    });
-    console.log(allLinks);
-});
 
+//this grabs all of the href links from the table
+const getData = () => {
+    axios.get(url).then(response => {
+        const allLinks = [];
+        const $ = cheerio.load(response.data);
+        $('#table > tbody > tr > td > a').each((i, el) => {
+            const link = $(el).attr('href');
+            allLinks.push(link);
+        });
+
+        //loop through all of the links and get the ABV data
+        //this crashes after like 200 links
+        const getAbv = () => {
+            for (link of allLinks) {
+                axios.get(link).then(response => {
+                    const $ = cheerio.load(response.data);
+                    const abv = $(
+                        '#spirit-entry-body > div > div > section.o-spirit-stats-section.o-spirit-entry-section > ul > li.o-spirit-stat-list-item.o-spirit-stat_abv > p'
+                    ).text();
+                    console.log(`abv: ${abv}`);
+                });
+            }
+        };
+        getAbv();
+    });
+};
+
+getData();
+/* const abv = $(
+    '#spirit-entry-body > div > div > section.o-spirit-stats-section.o-spirit-entry-section > ul > li.o-spirit-stat-list-item.o-spirit-stat_abv > p'
+).text(); */
 //hoisted so it returns an ampty array not sure how to fix
-console.log(allLinks);
